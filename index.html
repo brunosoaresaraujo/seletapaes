@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SELETA · Pães e Confeitaria</title>
+  <meta name="description" content="SELETA Pães e Confeitaria — pão francês, confeitaria, lanches e café no Comercial Alpha Center, DF-140, Jardim Botânico, Brasília.">
+  <link rel="icon" type="image/png" href="assets/logo-seleta.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Work+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" type="image/webp" href="assets/hero-pao.webp">
+  <style>
+    /* ===== Tokens · SELETA Direção visual ===== */
+    :root{
+      --creme:#F7F2E8;      /* fundo principal */
+      --papel:#FFFCF6;      /* fundo de apoio / texto invertido */
+      --trigo:#E8D7B7;      /* superfície secundária */
+      --dourado:#C69B52;    /* filetes e pequenos acentos */
+      --mel:#75501E;        /* CTA e links */
+      --mel-escuro:#5E3F15; /* hover do CTA */
+      --carvao:#25211B;     /* texto principal */
+
+      --serif:"Cormorant Garamond", Georgia, "Times New Roman", serif;
+      --sans:"Work Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+      --gutter:clamp(20px, 5vw, 72px);
+      --container:1280px; /* largura máxima do conteúdo */
+      /* respiro lateral: nunca menor que o gutter; em telas grandes centraliza o container */
+      --pad:max(var(--gutter), calc((100% - var(--container)) / 2));
+      --nav-h:88px;
+      --ease:cubic-bezier(.2,.7,.2,1);
+    }
+
+    *,*::before,*::after{box-sizing:border-box}
+    html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+    body{
+      margin:0;background:var(--creme);color:var(--carvao);
+      font:400 16px/26px var(--sans);
+      -webkit-font-smoothing:antialiased;
+    }
+    img{display:block;max-width:100%}
+    a{color:inherit;text-decoration:none}
+    .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+    /* ===== Header / Menu ===== */
+    .site-header{
+      position:fixed;inset:0 0 auto 0;z-index:50;
+      height:var(--nav-h);
+      display:flex;align-items:center;justify-content:space-between;gap:32px;
+      padding:0 var(--pad);
+      transition:background .35s var(--ease), box-shadow .35s var(--ease), height .35s var(--ease);
+    }
+    .site-header.is-scrolled{
+      --nav-h:72px;
+      background:rgba(255,252,246,.94);
+      backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      box-shadow:0 1px 0 rgba(37,33,27,.08);
+    }
+    .brand{display:flex;align-items:center;gap:14px;flex-shrink:0}
+    .brand img{
+      width:64px;height:64px;border-radius:50%;
+      box-shadow:0 6px 18px rgba(37,33,27,.14);
+      transition:width .35s var(--ease),height .35s var(--ease);
+    }
+    .is-scrolled .brand img{width:52px;height:52px}
+
+    .nav{display:flex;align-items:center;gap:40px}
+    .nav-links{display:flex;gap:32px;list-style:none;margin:0;padding:0}
+    .nav-links a{
+      position:relative;
+      font:600 13px/20px var(--sans);letter-spacing:.08em;text-transform:uppercase;
+      color:var(--carvao);padding:6px 0;
+    }
+    .nav-links a::after{
+      content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--dourado);
+      transform:scaleX(0);transform-origin:left;transition:transform .3s var(--ease);
+    }
+    .nav-links a:hover::after,.nav-links a:focus-visible::after,.nav-links a[aria-current="page"]::after{transform:scaleX(1)}
+
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      font:600 14px/20px var(--sans);letter-spacing:.01em;
+      padding:14px 28px;border-radius:4px;border:1px solid transparent;
+      transition:background .25s var(--ease),color .25s var(--ease),border-color .25s var(--ease),transform .25s var(--ease);
+      cursor:pointer;
+    }
+    .btn-primary{background:var(--mel);color:var(--papel)}
+    .btn-primary:hover{background:var(--mel-escuro);transform:translateY(-1px)}
+    .btn-ghost{border-color:rgba(37,33,27,.28);color:var(--carvao)}
+    .btn-ghost:hover{border-color:var(--mel);color:var(--mel)}
+    .btn svg{width:18px;height:18px;flex-shrink:0}
+    .nav .btn{padding:11px 20px}
+    :focus-visible{outline:2px solid var(--dourado);outline-offset:3px}
+
+    .menu-toggle{
+      display:none;width:46px;height:46px;border:0;border-radius:50%;
+      background:var(--papel);color:var(--carvao);cursor:pointer;
+      box-shadow:0 4px 14px rgba(37,33,27,.12);
+      align-items:center;justify-content:center;
+    }
+    .menu-toggle span{display:block;width:18px;height:1.5px;background:currentColor;position:relative;transition:background .2s}
+    .menu-toggle span::before,.menu-toggle span::after{
+      content:"";position:absolute;left:0;width:18px;height:1.5px;background:currentColor;transition:transform .3s var(--ease)
+    }
+    .menu-toggle span::before{top:-6px}.menu-toggle span::after{top:6px}
+    .menu-open .menu-toggle span{background:transparent}
+    .menu-open .menu-toggle span::before{transform:translateY(6px) rotate(45deg)}
+    .menu-open .menu-toggle span::after{transform:translateY(-6px) rotate(-45deg)}
+
+    /* ===== Hero ===== */
+    .hero{
+      position:relative;isolation:isolate;
+      min-height:100vh;min-height:100svh;
+      display:flex;flex-direction:column;justify-content:center;
+      padding:calc(var(--nav-h) + 40px) var(--pad) 120px;
+      overflow:hidden;
+    }
+    .hero-bg{
+      position:absolute;inset:0;z-index:-2;
+      width:100%;height:100%;object-fit:cover;object-position:70% 55%;
+      transform:scale(1.18) translateX(9%);transform-origin:100% 60%;
+      opacity:0;
+      transition:opacity 1.2s var(--ease), transform 8s cubic-bezier(.25,.6,.3,1);
+    }
+    .hero-bg.is-active{opacity:1;transform:scale(1.1) translateX(9%)}
+    /* véu creme: leitura à esquerda, imagem respira à direita */
+    .hero::before{
+      content:"";position:absolute;inset:0;z-index:-1;
+      background:
+        /* véu acompanha o container: fica sempre atrás do texto, em qualquer largura */
+        linear-gradient(90deg, rgba(247,242,232,.96) 0, rgba(247,242,232,.88) calc(var(--pad) + 330px), rgba(247,242,232,.45) calc(var(--pad) + 560px), rgba(247,242,232,0) calc(var(--pad) + 760px)),
+        linear-gradient(180deg, rgba(247,242,232,.55) 0%, rgba(247,242,232,0) 22%, rgba(247,242,232,0) 72%, rgba(247,242,232,.88) 100%);
+    }
+
+    .hero-content{max-width:560px}
+    .eyebrow{
+      display:flex;align-items:center;gap:14px;margin:0 0 28px;
+      font:600 12px/16px var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--mel);
+    }
+    .eyebrow::before{content:"";width:40px;height:1px;background:var(--dourado)}
+    .hero-title{
+      margin:0 0 24px;
+      font:500 clamp(48px, 6.4vw, 92px)/1.02 var(--serif);
+      letter-spacing:-.01em;color:var(--carvao);
+    }
+    .hero-title em{font-style:italic;font-weight:400;color:var(--mel)}
+    .hero-lead{margin:0 0 40px;max-width:440px;font-size:18px;line-height:30px;color:rgba(37,33,27,.82)}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:14px}
+
+    /* ===== Slider de textos ===== */
+    .hero-slides{display:grid}
+    .slide{grid-area:1/1;visibility:hidden;transition:visibility 0s .7s}
+    .slide.is-active{visibility:visible;transition:none}
+    .slide > *{opacity:0;transform:translateY(-10px);transition:opacity .45s var(--ease), transform .45s var(--ease)}
+    .slide.is-active > *{opacity:1;transform:none;transition:opacity .8s var(--ease), transform .8s var(--ease)}
+    .slide.is-active > :nth-child(1){transition-delay:.25s}
+    .slide.is-active > :nth-child(2){transition-delay:.37s}
+    .slide.is-active > :nth-child(3){transition-delay:.49s}
+    .slide:not(.is-active) > *{transform:translateY(16px)}
+    .slide.is-leaving > *{transform:translateY(-10px)}
+
+    /* controles */
+    .slider-nav{margin-left:auto;display:flex;align-items:center;gap:18px}
+    .slider-count{margin:0;font:600 12px/16px var(--sans);letter-spacing:.14em;color:var(--carvao);min-width:52px}
+    .slider-count span{color:rgba(37,33,27,.45)}
+    .slider-dots{display:flex;gap:8px}
+    .slider-dot{
+      position:relative;width:36px;height:20px;padding:0;border:0;background:none;cursor:pointer;
+    }
+    .slider-dot::before,.slider-dot::after{
+      content:"";position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;border-radius:2px;
+    }
+    .slider-dot::before{background:rgba(37,33,27,.18)}
+    .slider-dot::after{background:var(--mel);transform:scaleX(0);transform-origin:left}
+    .slider-dot.is-done::after{transform:scaleX(1)}
+    .slider-dot.is-active::after{animation:progress var(--slide-dur,6.5s) linear forwards}
+    .hero.is-paused .slider-dot.is-active::after{animation-play-state:paused}
+    @keyframes progress{to{transform:scaleX(1)}}
+    .slider-arrows{display:flex;gap:8px}
+    .slider-arrow{
+      width:40px;height:40px;border-radius:50%;border:1px solid rgba(37,33,27,.22);
+      background:rgba(255,252,246,.6);color:var(--carvao);cursor:pointer;
+      display:inline-flex;align-items:center;justify-content:center;
+      transition:border-color .25s var(--ease),color .25s var(--ease),background .25s var(--ease);
+    }
+    .slider-arrow:hover{border-color:var(--mel);color:var(--papel);background:var(--mel)}
+    .slider-arrow svg{width:16px;height:16px}
+
+    /* faixa de informações */
+    .hero-info{
+      position:absolute;left:var(--pad);right:var(--pad);bottom:32px;
+      display:flex;flex-wrap:wrap;gap:12px 40px;align-items:center;
+      padding-top:20px;border-top:1px solid rgba(37,33,27,.14);
+      font:400 13px/20px var(--sans);color:rgba(37,33,27,.78);
+    }
+    .hero-info span{display:inline-flex;align-items:center;gap:10px;white-space:nowrap}
+    .hero-info strong{font-weight:600;color:var(--carvao)}
+    .hero-info i{width:6px;height:6px;border-radius:50%;background:var(--dourado);display:inline-block}
+
+    /* entrada suave */
+    .reveal{opacity:0;transform:translateY(16px);animation:reveal .9s var(--ease) forwards}
+    .reveal:nth-child(2){animation-delay:.12s}.reveal:nth-child(3){animation-delay:.24s}.reveal:nth-child(4){animation-delay:.36s}
+    .hero-info.reveal{animation-delay:.5s}
+    @keyframes reveal{to{opacity:1;transform:none}}
+    @media (prefers-reduced-motion:reduce){
+      .reveal{animation:none;opacity:1;transform:none}
+      .hero-bg,.hero-bg.is-active{transform:scale(1.1) translateX(9%);transition:opacity .6s}
+      .slide > *,.slide.is-active > *,.slide:not(.is-active) > *{transform:none}
+    }
+
+    /* ===== Cardápio ===== */
+    .menu{
+      position:relative;background:var(--papel);
+      padding:clamp(72px, 8vw, 104px) var(--pad);
+      border-top:1px solid rgba(37,33,27,.06);
+    }
+    .menu-head{
+      display:grid;grid-template-columns:minmax(0,1fr) minmax(0,360px);
+      gap:24px 64px;align-items:end;margin-bottom:clamp(32px,4vw,48px);
+    }
+    .section-title{
+      margin:0;font:500 clamp(38px, 4vw, 56px)/1.05 var(--serif);
+      letter-spacing:-.01em;color:var(--carvao);
+    }
+    .section-title em{font-style:italic;font-weight:400;color:var(--mel)}
+    .menu-lead{margin:0;color:rgba(37,33,27,.72)}
+    .nowrap{white-space:nowrap}
+
+    /* abas */
+    .menu-tabs-wrap{position:relative;border-bottom:1px solid rgba(37,33,27,.12)}
+    .menu-tabs{
+      position:relative;display:flex;overflow-x:auto;scrollbar-width:none;
+      scroll-snap-type:x proximity;
+    }
+    .menu-tabs::-webkit-scrollbar{display:none}
+    .menu-tab{
+      flex:0 0 auto;display:flex;align-items:baseline;gap:10px;scroll-snap-align:start;
+      padding:18px 22px 20px;border:0;background:none;cursor:pointer;
+      font:600 13px/20px var(--sans);letter-spacing:.08em;text-transform:uppercase;
+      color:rgba(37,33,27,.5);transition:color .25s var(--ease);
+    }
+    .menu-tab:first-child{padding-left:0}
+    .menu-tab:hover,.menu-tab.is-active{color:var(--carvao)}
+    .menu-tab-num{font:italic 400 19px/1 var(--serif);letter-spacing:0;color:var(--dourado)}
+    .menu-tabs-ink{
+      position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--mel);
+      transition:transform .45s var(--ease), width .45s var(--ease);
+    }
+
+    /* painéis */
+    .menu-panels{margin-top:clamp(28px,3vw,36px)}
+    .menu-panel{
+      display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);
+      gap:clamp(32px,5vw,72px);align-items:start;
+    }
+    .menu-panel[hidden]{display:none}
+
+    .menu-figure{
+      position:relative;margin:0;border-radius:6px;overflow:hidden;
+      aspect-ratio:4/5;max-height:min(500px, 56vh);width:100%;
+      background:var(--trigo);
+    }
+    .menu-figure img{width:100%;height:100%;object-fit:cover}
+    .menu-figure-ph{display:none}
+    .menu-figure.is-empty{
+      background:
+        radial-gradient(120% 80% at 30% 20%, var(--papel) 0%, transparent 60%),
+        linear-gradient(160deg, var(--trigo), #DCC59C);
+    }
+    .menu-figure.is-empty::before{
+      content:"";position:absolute;inset:16px;border:1px solid rgba(117,80,30,.28);border-radius:3px;
+    }
+    .menu-figure.is-empty .menu-figure-ph{
+      display:flex;position:absolute;inset:0;align-items:center;justify-content:center;
+      padding:32px;text-align:center;
+      font:italic 400 clamp(36px,3.6vw,52px)/1.05 var(--serif);color:var(--mel);
+    }
+    .menu-figure-count{
+      position:absolute;top:20px;left:20px;
+      padding:6px 12px;border-radius:99px;background:rgba(255,252,246,.92);
+      font:600 11px/16px var(--sans);letter-spacing:.14em;color:var(--carvao);
+    }
+    .menu-figure-count i{font-style:normal;color:rgba(37,33,27,.45)}
+    .menu-figure-card{
+      position:absolute;left:20px;bottom:20px;max-width:calc(100% - 40px);
+      padding:14px 20px 16px;border-radius:4px;background:var(--papel);
+      box-shadow:0 10px 30px rgba(37,33,27,.16);
+      font:500 24px/1.1 var(--serif);color:var(--carvao);
+    }
+    .menu-figure-card small{
+      display:block;margin-bottom:6px;
+      font:600 10px/14px var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--mel);
+    }
+
+    .menu-body{display:flex;flex-direction:column;padding-top:8px}
+    .menu-hour{
+      display:flex;align-items:center;gap:10px;margin:0 0 16px;
+      font:600 12px/16px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--mel);
+    }
+    .menu-hour i{width:6px;height:6px;border-radius:50%;background:var(--dourado)}
+    .menu-title{margin:0 0 14px;font:500 clamp(32px,3.2vw,44px)/1.08 var(--serif);color:var(--carvao)}
+    .menu-title em{font-style:italic;font-weight:400;color:var(--mel)}
+    .menu-intro{margin:0 0 22px;max-width:520px;color:rgba(37,33,27,.72)}
+    .menu-list{
+      list-style:none;margin:0 0 28px;padding:0;
+      display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:40px;
+    }
+    .menu-item{padding:15px 0;border-top:1px solid rgba(37,33,27,.1)}
+    .menu-item h4{
+      display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;
+      margin:0 0 4px;font:600 16px/24px var(--sans);color:var(--carvao);
+    }
+    .menu-item p{margin:0;font-size:14px;line-height:22px;color:rgba(37,33,27,.66)}
+    .tag{
+      padding:2px 9px;border-radius:99px;background:var(--trigo);
+      font:600 10px/16px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--mel);
+    }
+    .tag-encomenda{background:transparent;box-shadow:inset 0 0 0 1px var(--dourado)}
+    .menu-cta{align-self:flex-start}
+
+    /* entrada do painel */
+    .menu-panel.is-active .menu-figure img{animation:menuImg 1s var(--ease) both}
+    .menu-panel.is-active .menu-figure-card{animation:menuUp .7s .25s var(--ease) both}
+    .menu-panel.is-active .menu-body > *{animation:menuUp .6s var(--ease) both}
+    .menu-panel.is-active .menu-body > :nth-child(2){animation-delay:.06s}
+    .menu-panel.is-active .menu-body > :nth-child(3){animation-delay:.12s}
+    .menu-panel.is-active .menu-body > :nth-child(4){animation-delay:.18s}
+    .menu-panel.is-active .menu-body > :nth-child(5){animation-delay:.24s}
+    @keyframes menuImg{from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:none}}
+    @keyframes menuUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+    @media (prefers-reduced-motion:reduce){
+      .menu-panel.is-active *{animation:none !important}
+      .menu-tabs-ink{transition:none}
+    }
+
+    @media (max-width:860px){
+      .menu-head{grid-template-columns:1fr}
+      .menu-tabs-wrap{margin:0 calc(var(--pad) * -1);padding:0 var(--pad)}
+      .menu-tabs-wrap::after{
+        content:"";position:absolute;right:0;top:0;bottom:1px;width:48px;pointer-events:none;
+        background:linear-gradient(90deg, rgba(255,252,246,0), var(--papel));
+      }
+      .menu-tab{padding:16px 16px 18px}
+      .menu-panel{grid-template-columns:1fr;gap:28px}
+      .menu-figure{aspect-ratio:16/10;max-height:260px}
+      .menu-item{padding:14px 0}
+      .menu-intro{margin-bottom:20px}
+      .menu-list{margin-bottom:24px}
+      .menu-figure-card{font-size:20px;padding:12px 16px 14px;left:16px;bottom:16px}
+      .menu-figure-count{top:16px;left:16px}
+      .menu-list{grid-template-columns:1fr}
+      .menu-cta{align-self:stretch}
+      .menu-figure.is-empty .menu-figure-ph{align-items:flex-start;padding-top:56px;font-size:clamp(28px,7vw,44px)}
+    }
+    @media (min-width:600px) and (max-width:860px){
+      .menu-list{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px}
+      .menu-cta{align-self:flex-start}
+    }
+
+    /* ===== Responsivo ===== */
+    /* telas muito largas: a foto começa junto ao container e se funde no creme à esquerda */
+    @media (min-width:1700px){
+      .hero-bg{
+        left:calc(var(--pad) + 180px);width:auto;right:0;
+        transform:scale(1.08);transform-origin:70% 55%;
+        -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 30%);
+                mask-image:linear-gradient(90deg,transparent 0,#000 30%);
+      }
+      .hero-bg.is-active{transform:scale(1)}
+    }
+    @media (max-width:1080px){
+      .nav-links{gap:24px}
+      .nav .btn{display:none}
+    }
+    @media (max-width:1180px){
+      .hero-info .opt{display:none}
+    }
+    @media (max-width:860px){
+      :root{--nav-h:76px}
+      .brand img{width:54px;height:54px}
+      .menu-toggle{display:inline-flex}
+      .nav{
+        position:fixed;inset:0;z-index:-1;
+        flex-direction:column;justify-content:center;gap:40px;
+        background:var(--papel);
+        opacity:0;visibility:hidden;transition:opacity .3s var(--ease),visibility .3s;
+      }
+      .menu-open .nav{opacity:1;visibility:visible}
+      .nav-links{flex-direction:column;align-items:center;gap:22px}
+      .nav-links a{font:500 34px/40px var(--serif);letter-spacing:0;text-transform:none}
+      .nav .btn{display:inline-flex}
+      .menu-open .site-header{background:transparent;box-shadow:none}
+
+      /* celular/tablet: foto no topo, texto logo abaixo — nunca se sobrepõem */
+      .hero{
+        --hero-img:clamp(210px, 46vh, 560px);
+        justify-content:flex-start;
+        padding-top:var(--hero-img);padding-bottom:120px;
+      }
+      @supports (height:1svh){.hero{--hero-img:clamp(210px, 46svh, 560px)}}
+      .hero-title{font-size:46px;margin-bottom:16px}
+      .eyebrow{margin-bottom:18px}
+      .hero-lead{font-size:16px;line-height:26px;margin-bottom:28px}
+      .hero-bg,.hero-bg.is-active{
+        object-position:58% 50%;height:calc(var(--hero-img) + 24px);transform:none;
+        -webkit-mask-image:linear-gradient(180deg,#000 62%,transparent 100%);
+                mask-image:linear-gradient(180deg,#000 62%,transparent 100%);
+      }
+      .hero::before{background:linear-gradient(180deg, rgba(247,242,232,.55) 0, rgba(247,242,232,0) 96px)}
+      .hero-content{max-width:600px;margin-block:auto}
+      .hero-info .opt{display:none}
+      .hero-info{gap:8px 24px;bottom:24px;font-size:12px}
+      .slider-arrows{display:none}
+      .slider-dot{width:24px}
+      .slider-nav{gap:12px}
+    }
+    @media (max-width:480px){
+      .hero-actions{gap:10px}
+      .hero-actions .btn{flex:1 1 0;padding:14px 12px}
+      .hero-info .opt,.hero-info .opt2{display:none}
+      .hero-info{flex-wrap:nowrap;gap:12px}
+      .hero-title{font-size:42px}
+    }
+    @media (max-width:380px){
+      .hero-title{font-size:38px}
+      .hero-lead{font-size:15px;line-height:24px}
+      .hero-actions .btn{flex-basis:100%}
+      .slider-count{display:none}
+      /* cardápio */
+      .menu-figure{aspect-ratio:4/3}
+      .menu-figure-card{font-size:18px;padding:10px 14px 12px;left:12px;bottom:12px}
+      .menu-figure-count{top:12px;left:12px}
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header" id="topo">
+    <a class="brand" href="#inicio" aria-label="SELETA Pães e Confeitaria — início">
+      <img src="assets/logo-seleta.webp" alt="SELETA Pães e Confeitaria" width="64" height="64">
+    </a>
+
+    <nav class="nav" id="menu" aria-label="Menu principal">
+      <ul class="nav-links">
+        <li><a href="#inicio" aria-current="page">Início</a></li>
+        <li><a href="#sobre">Sobre</a></li>
+        <li><a href="#cardapio">Cardápio</a></li>
+        <li><a href="#encomendas">Encomendas</a></li>
+        <li><a href="#visite">Visite</a></li>
+      </ul>
+      <a class="btn btn-primary" href="https://wa.me/5561996933135" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1 2.7.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>
+        Encomende
+      </a>
+    </nav>
+
+    <button class="menu-toggle" type="button" aria-controls="menu" aria-expanded="false">
+      <span></span><b class="sr-only">Abrir menu</b>
+    </button>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio" aria-labelledby="hero-title">
+      <img class="hero-bg is-active" src="assets/hero-pao.webp" alt="" aria-hidden="true">
+      <img class="hero-bg" src="assets/hero-pizza.webp" alt="" aria-hidden="true" loading="lazy">
+      <img class="hero-bg" src="assets/hero-frango.webp" alt="" aria-hidden="true" loading="lazy">
+
+      <div class="hero-content">
+        <h1 id="hero-title" class="sr-only">SELETA Pães e Confeitaria — Jardim Botânico, Brasília</h1>
+
+        <div class="hero-slides" aria-roledescription="carrossel" aria-live="polite">
+          <div class="slide is-active" role="group" aria-roledescription="slide" aria-label="1 de 3">
+            <p class="eyebrow">Pães e confeitaria</p>
+            <h2 class="hero-title">À mesa,<br>com <em>SELETA</em>.</h2>
+            <p class="hero-lead">Pão quentinho desde cedo, confeitaria feita com cuidado e um café para acompanhar — no coração do Jardim Botânico.</p>
+          </div>
+          <div class="slide" role="group" aria-roledescription="slide" aria-label="2 de 3">
+            <p class="eyebrow">Pizzas</p>
+            <h2 class="hero-title">A pizza que<br><em>reúne</em> a mesa.</h2>
+            <p class="hero-lead">Borda dourada, recheio generoso e aquele cheirinho de forno — para saborear aqui ou levar para casa.</p>
+          </div>
+          <div class="slide" role="group" aria-roledescription="slide" aria-label="3 de 3">
+            <p class="eyebrow">Frango assado</p>
+            <h2 class="hero-title">Sabor de<br><em>domingo</em>.</h2>
+            <p class="hero-lead">Dourado por fora, suculento por dentro. Garanta o seu para o almoço em família — é só encomendar.</p>
+          </div>
+        </div>
+
+        <div class="hero-actions reveal">
+          <a class="btn btn-primary" href="#cardapio">Conheça a SELETA</a>
+          <a class="btn btn-ghost" href="https://wa.me/5561996933135" target="_blank" rel="noopener">Fale no WhatsApp</a>
+        </div>
+      </div>
+
+      <div class="hero-info reveal" aria-label="Informações rápidas">
+        <span><i></i><strong>Todos os dias</strong> desde as 7h</span>
+        <span class="opt2"><i></i>Comercial Alpha Center · DF-140</span>
+        <span class="opt"><i></i><strong>4,3</strong> no Google · +1.300 avaliações</span>
+
+        <div class="slider-nav" aria-label="Controles do carrossel">
+          <p class="slider-count" aria-hidden="true"><b class="js-current">01</b> <span>/ 03</span></p>
+          <div class="slider-dots">
+            <button class="slider-dot is-active" type="button" aria-label="Pães e confeitaria" aria-current="true"></button>
+            <button class="slider-dot" type="button" aria-label="Pizzas"></button>
+            <button class="slider-dot" type="button" aria-label="Frango assado"></button>
+          </div>
+          <div class="slider-arrows">
+            <button class="slider-arrow" type="button" data-dir="-1" aria-label="Slide anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <button class="slider-arrow" type="button" data-dir="1" aria-label="Próximo slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Cardápio ===== -->
+    <section class="menu" id="cardapio" aria-labelledby="cardapio-title">
+      <div class="menu-head">
+        <div>
+          <p class="eyebrow">Cardápio</p>
+          <h2 id="cardapio-title" class="section-title">Do café da manhã <span class="nowrap">ao <em>fim do dia</em>.</span></h2>
+        </div>
+        <p class="menu-lead">Escolha uma categoria e veja os destaques. A disponibilidade muda ao longo do dia — na dúvida, chame no WhatsApp.</p>
+      </div>
+
+      <div class="menu-tabs-wrap">
+        <div class="menu-tabs" role="tablist" aria-label="Categorias do cardápio">
+          <button class="menu-tab is-active" role="tab" id="tab-paes" aria-controls="painel-paes" aria-selected="true" tabindex="0"><span class="menu-tab-num">01</span><span class="menu-tab-name">Pães</span></button>
+          <button class="menu-tab" role="tab" id="tab-confeitaria" aria-controls="painel-confeitaria" aria-selected="false" tabindex="-1"><span class="menu-tab-num">02</span><span class="menu-tab-name">Confeitaria</span></button>
+          <button class="menu-tab" role="tab" id="tab-lanches" aria-controls="painel-lanches" aria-selected="false" tabindex="-1"><span class="menu-tab-num">03</span><span class="menu-tab-name">Salgados & lanches</span></button>
+          <button class="menu-tab" role="tab" id="tab-pizzas" aria-controls="painel-pizzas" aria-selected="false" tabindex="-1"><span class="menu-tab-num">04</span><span class="menu-tab-name">Pizzas</span></button>
+          <button class="menu-tab" role="tab" id="tab-frango" aria-controls="painel-frango" aria-selected="false" tabindex="-1"><span class="menu-tab-num">05</span><span class="menu-tab-name">Frango assado</span></button>
+          <button class="menu-tab" role="tab" id="tab-cafes" aria-controls="painel-cafes" aria-selected="false" tabindex="-1"><span class="menu-tab-num">06</span><span class="menu-tab-name">Cafés & bebidas</span></button>
+          <span class="menu-tabs-ink" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <div class="menu-panels">
+        <div class="menu-panel is-active" role="tabpanel" id="painel-paes" aria-labelledby="tab-paes">
+          <figure class="menu-figure">
+            <img src="assets/hero-pao.webp" alt="Pães da SELETA" loading="lazy" onerror="this.parentNode.classList.add('is-empty');this.remove()">
+            <span class="menu-figure-ph" aria-hidden="true">Pães</span>
+            <span class="menu-figure-count" aria-hidden="true">01 <i>/ 06</i></span>
+            <figcaption class="menu-figure-card"><small>Destaque da casa</small>Pão francês</figcaption>
+          </figure>
+          <div class="menu-body">
+            <p class="menu-hour"><i></i>Desde as 7h</p>
+            <h3 class="menu-title">Pães de <em>todo dia</em></h3>
+            <p class="menu-intro">Fornadas ao longo do dia para o café da manhã, o lanche da tarde e a mesa de casa.</p>
+            <ul class="menu-list">
+              <li class="menu-item"><h4>Pão francês <span class="tag">Mais pedido</span></h4><p>Casquinha crocante e miolo macio — o clássico da casa.</p></li>
+              <li class="menu-item"><h4>Pão de fermentação natural</h4><p>Casca rústica, miolo aerado e sabor levemente ácido.</p></li>
+              <li class="menu-item"><h4>Pão de queijo</h4><p>Quentinho, para acompanhar o café.</p></li>
+              <li class="menu-item"><h4>Pão integral</h4><p>Com grãos, para o dia a dia.</p></li>
+              <li class="menu-item"><h4>Baguete</h4><p>Ideal para torradas, bruschettas e lanches.</p></li>
+            </ul>
+            <a class="btn btn-primary menu-cta" href="https://wa.me/5561996933135?text=Ol%C3%A1%2C%20SELETA%21%20Gostaria%20de%20saber%20mais%20sobre%20p%C3%A3es." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1 2.7.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg> Pedir pelo WhatsApp</a>
+          </div>
+        </div>
+        <div class="menu-panel" role="tabpanel" id="painel-confeitaria" aria-labelledby="tab-confeitaria" hidden>
+          <figure class="menu-figure">
+            <img src="assets/cardapio-confeitaria.webp" alt="Confeitaria da SELETA" loading="lazy" onerror="this.parentNode.classList.add('is-empty');this.remove()">
+            <span class="menu-figure-ph" aria-hidden="true">Confeitaria</span>
+            <span class="menu-figure-count" aria-hidden="true">02 <i>/ 06</i></span>
+            <figcaption class="menu-figure-card"><small>Destaque da casa</small>Bolo do dia</figcaption>
+          </figure>
+          <div class="menu-body">
+            <p class="menu-hour"><i></i>O dia inteiro</p>
+            <h3 class="menu-title">Doces para <em>adoçar</em> a pausa</h3>
+            <p class="menu-intro">Bolos, tortas e folhados para o café da tarde ou para levar de presente.</p>
+            <ul class="menu-list">
+              <li class="menu-item"><h4>Bolo do dia <span class="tag">Mais pedido</span></h4><p>Fatias generosas de receitas caseiras que mudam ao longo da semana.</p></li>
+              <li class="menu-item"><h4>Tortas doces</h4><p>Inteiras ou em fatias.</p></li>
+              <li class="menu-item"><h4>Croissant</h4><p>Folhado, amanteigado e dourado.</p></li>
+              <li class="menu-item"><h4>Sonho</h4><p>Recheio cremoso e açúcar por cima.</p></li>
+              <li class="menu-item"><h4>Docinhos para festas <span class="tag tag-encomenda">Sob encomenda</span></h4><p>Brigadeiros e clássicos de festa.</p></li>
+            </ul>
+            <a class="btn btn-primary menu-cta" href="https://wa.me/5561996933135?text=Ol%C3%A1%2C%20SELETA%21%20Gostaria%20de%20saber%20mais%20sobre%20confeitaria." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1 2.7.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg> Pedir pelo WhatsApp</a>
+          </div>
+        </div>
+        <div class="menu-panel" role="tabpanel" id="painel-lanches" aria-labelledby="tab-lanches" hidden>
+          <figure class="menu-figure">
+            <img src="assets/cardapio-salgados.webp" alt="Salgados & lanches da SELETA" loading="lazy" onerror="this.parentNode.classList.add('is-empty');this.remove()">
+            <span class="menu-figure-ph" aria-hidden="true">Salgados & lanches</span>
+            <span class="menu-figure-count" aria-hidden="true">03 <i>/ 06</i></span>
+            <figcaption class="menu-figure-card"><small>Destaque da casa</small>Pão com linguiça</figcaption>
+          </figure>
+          <div class="menu-body">
+            <p class="menu-hour"><i></i>Do café ao fim da tarde</p>
+            <h3 class="menu-title">Lanches <em>bem-feitos</em></h3>
+            <p class="menu-intro">Salgados assados e fritos, sanduíches e lanches para uma refeição rápida.</p>
+            <ul class="menu-list">
+              <li class="menu-item"><h4>Pão com linguiça <span class="tag">Mais pedido</span></h4><p>Com tomate, rúcula e queijo — destaque da casa.</p></li>
+              <li class="menu-item"><h4>Coxinha</h4><p>Massa leve e recheio caprichado.</p></li>
+              <li class="menu-item"><h4>Empada</h4><p>Massa que desmancha na boca.</p></li>
+              <li class="menu-item"><h4>Misto quente</h4><p>Na chapa, do jeito clássico.</p></li>
+              <li class="menu-item"><h4>Sanduíche natural</h4><p>Leve, para o lanche da tarde.</p></li>
+            </ul>
+            <a class="btn btn-primary menu-cta" href="https://wa.me/5561996933135?text=Ol%C3%A1%2C%20SELETA%21%20Gostaria%20de%20saber%20mais%20sobre%20salgados%20%26%20lanches." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1 2.7.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg> Pedir pelo WhatsApp</a>
+          </div>
+        </div>
+        <div class="menu-panel" role="tabpanel" id="painel-pizzas" aria-labelledby="tab-pizzas" hidden>
+          <figure class="menu-figure">
+            <img src="assets/hero-pizza.webp" alt="Pizzas da SELETA" loading="lazy" onerror="this.parentNode.classList.add('is-empty');this.remove()">
+            <span class="menu-figure-ph" aria-hidden="true">Pizzas</span>
+            <span class="menu-figure-count" aria-hidden="true">04 <i>/ 06</i></span>
+            <figcaption class="menu-figure-card"><small>Destaque da casa</small>Calabresa</figcaption>
+          </figure>
+          <div class="menu-body">
+            <p class="menu-hour"><i></i>Para o fim do dia</p>
+            <h3 class="menu-title">Pizza que <em>reúne</em> a mesa</h3>
+            <p class="menu-intro">Borda dourada e recheio generoso — para comer aqui ou levar para casa.</p>
+            <ul class="menu-list">
+              <li class="menu-item"><h4>Calabresa <span class="tag">Mais pedido</span></h4><p>Calabresa fatiada, cebola e azeitonas.</p></li>
+              <li class="menu-item"><h4>Mussarela</h4><p>Simples e sempre certa.</p></li>
+              <li class="menu-item"><h4>Portuguesa</h4><p>Presunto, ovos, cebola e azeitonas.</p></li>
+              <li class="menu-item"><h4>Frango com catupiry</h4><p>Frango desfiado e catupiry cremoso.</p></li>
+              <li class="menu-item"><h4>Marguerita</h4><p>Tomate, mussarela e manjericão.</p></li>
+            </ul>
+            <a class="btn btn-primary menu-cta" href="https://wa.me/5561996933135?text=Ol%C3%A1%2C%20SELETA%21%20Gostaria%20de%20saber%20mais%20sobre%20pizzas." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1 2.7.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg> Pedir pelo WhatsApp</a>
+          </div>
+        </div>
+        <div class="menu-panel" role="tabpanel" id="painel-frango" aria-labelledby="tab-frango" hidden>
+          <figure class="menu-figure">
+            <img src="assets/hero-frango.webp" alt="Frango assado da SELETA" loading="lazy" onerror="this.parentNode.classList.add('is-empty');this.remove()">
+            <span class="menu-figure-ph" aria-hidden="true">Frango assado</span>
+            <span class="menu-figure-count" aria-hidden="true">05 <i>/ 06</i></span>
+            <figcaption class="menu-figure-card"><small>Destaque da casa</small>Frango inteiro</figcaption>
+          </figure>
+          <div class="menu-body">
+            <p class="menu-hour"><i></i>Fins de semana</p>
+            <h3 class="menu-title">Sabor de <em>domingo</em></h3>
+            <p class="menu-intro">Dourado por fora, suculento por dentro. Garanta o seu com antecedência.</p>
+            <ul class="menu-list">
+              <li class="menu-item"><h4>Frango inteiro <span class="tag tag-encomenda">Sob encomenda</span></h4><p>Temperado e assado lentamente.</p></li>
+              <li class="menu-item"><h4>Meio frango</h4><p>Na medida para duas pessoas.</p></li>
+              <li class="menu-item"><h4>Farofa da casa</h4><p>O acompanhamento indispensável.</p></li>
+              <li class="menu-item"><h4>Maionese</h4><p>Cremosa, para completar o almoço.</p></li>
+            </ul>
+            <a class="btn btn-primary menu-cta" href="https://wa.me/5561996933135?text=Ol%C3%A1%2C%20SELETA%21%20Gostaria%20de%20saber%20mais%20sobre%20frango%20assado." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1 2.7.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg> Pedir pelo WhatsApp</a>
+          </div>
+        </div>
+        <div class="menu-panel" role="tabpanel" id="painel-cafes" aria-labelledby="tab-cafes" hidden>
+          <figure class="menu-figure">
+            <img src="assets/cardapio-cafes.webp" alt="Cafés & bebidas da SELETA" loading="lazy" onerror="this.parentNode.classList.add('is-empty');this.remove()">
+            <span class="menu-figure-ph" aria-hidden="true">Cafés & bebidas</span>
+            <span class="menu-figure-count" aria-hidden="true">06 <i>/ 06</i></span>
+            <figcaption class="menu-figure-card"><small>Destaque da casa</small>Cappuccino</figcaption>
+          </figure>
+          <div class="menu-body">
+            <p class="menu-hour"><i></i>O dia inteiro</p>
+            <h3 class="menu-title">Um <em>bom café</em> para acompanhar</h3>
+            <p class="menu-intro">Do espresso curto ao cappuccino cremoso — e bebidas geladas para os dias quentes.</p>
+            <ul class="menu-list">
+              <li class="menu-item"><h4>Espresso</h4><p>Curto, intenso e aromático.</p></li>
+              <li class="menu-item"><h4>Cappuccino <span class="tag">Mais pedido</span></h4><p>Cremoso, com um toque de canela.</p></li>
+              <li class="menu-item"><h4>Café com leite</h4><p>O companheiro do pão na chapa.</p></li>
+              <li class="menu-item"><h4>Sucos naturais</h4><p>Feitos na hora.</p></li>
+              <li class="menu-item"><h4>Cervejas</h4><p>Geladas, para o fim do dia.</p></li>
+            </ul>
+            <a class="btn btn-primary menu-cta" href="https://wa.me/5561996933135?text=Ol%C3%A1%2C%20SELETA%21%20Gostaria%20de%20saber%20mais%20sobre%20caf%C3%A9s%20%26%20bebidas." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1 2.7.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg> Pedir pelo WhatsApp</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      var header=document.querySelector('.site-header');
+      var toggle=document.querySelector('.menu-toggle');
+      var label=toggle.querySelector('.sr-only');
+      function onScroll(){header.classList.toggle('is-scrolled',window.scrollY>24)}
+      onScroll();window.addEventListener('scroll',onScroll,{passive:true});
+      function setMenu(open){
+        document.body.classList.toggle('menu-open',open);
+        toggle.setAttribute('aria-expanded',open);
+        label.textContent=open?'Fechar menu':'Abrir menu';
+        document.body.style.overflow=open?'hidden':'';
+      }
+      toggle.addEventListener('click',function(){setMenu(!document.body.classList.contains('menu-open'))});
+      document.querySelectorAll('.nav a').forEach(function(a){a.addEventListener('click',function(){setMenu(false)})});
+      document.addEventListener('keydown',function(e){if(e.key==='Escape')setMenu(false)});
+    })();
+
+    /* ===== Slider da hero ===== */
+    (function(){
+      var hero=document.querySelector('.hero');
+      var bgs=hero.querySelectorAll('.hero-bg');
+      var slides=hero.querySelectorAll('.slide');
+      var dots=hero.querySelectorAll('.slider-dot');
+      var counter=hero.querySelector('.js-current');
+      var current=0,total=slides.length;
+
+      function go(n){
+        n=(n+total)%total;
+        if(n===current)return;
+        var prev=current;current=n;
+        slides[prev].classList.add('is-leaving');
+        setTimeout(function(){slides[prev].classList.remove('is-leaving')},700);
+        [bgs,slides].forEach(function(list){
+          list.forEach(function(el,i){el.classList.toggle('is-active',i===n)});
+        });
+        dots.forEach(function(d,i){
+          d.classList.remove('is-active');
+          d.classList.toggle('is-done',i<n);
+          d.toggleAttribute('aria-current',i===n);
+        });
+        void dots[n].offsetWidth; // reinicia a barra de progresso
+        dots[n].classList.add('is-active');
+        counter.textContent=String(n+1).padStart(2,'0');
+      }
+
+      // avança quando a barra de progresso termina (respeita pausa)
+      dots.forEach(function(d,i){
+        d.addEventListener('animationend',function(){if(i===current)go(current+1)});
+        d.addEventListener('click',function(){go(i)});
+      });
+      hero.querySelectorAll('.slider-arrow').forEach(function(b){
+        b.addEventListener('click',function(){go(current+Number(b.dataset.dir))});
+      });
+
+      // pausa ao passar o mouse / focar / aba oculta
+      function pause(on){hero.classList.toggle('is-paused',on)}
+      var content=hero.querySelector('.hero-content'),nav=hero.querySelector('.slider-nav');
+      [content,nav].forEach(function(el){
+        el.addEventListener('mouseenter',function(){pause(true)});
+        el.addEventListener('mouseleave',function(){pause(false)});
+      });
+      hero.addEventListener('focusin',function(){pause(true)});
+      hero.addEventListener('focusout',function(){pause(false)});
+      document.addEventListener('visibilitychange',function(){pause(document.hidden)});
+
+      // swipe no celular
+      var x0=null;
+      hero.addEventListener('touchstart',function(e){x0=e.touches[0].clientX},{passive:true});
+      hero.addEventListener('touchend',function(e){
+        if(x0===null)return;var dx=e.changedTouches[0].clientX-x0;x0=null;
+        if(Math.abs(dx)>50)go(current+(dx<0?1:-1));
+      });
+
+      // carrega as demais imagens logo após a primeira
+      window.addEventListener('load',function(){bgs.forEach(function(img){img.loading='eager'})});
+    })();
+
+    /* ===== Cardápio: abas ===== */
+    (function(){
+      var tabs=[].slice.call(document.querySelectorAll('.menu-tab'));
+      var panels=[].slice.call(document.querySelectorAll('.menu-panel'));
+      var list=document.querySelector('.menu-tabs');
+      var ink=document.querySelector('.menu-tabs-ink');
+      if(!tabs.length)return;
+      var current=0;
+
+      function moveInk(){
+        var t=tabs[current],pad=parseFloat(getComputedStyle(t).paddingRight);
+        var left=t.offsetLeft+parseFloat(getComputedStyle(t).paddingLeft);
+        ink.style.width=(t.offsetWidth-parseFloat(getComputedStyle(t).paddingLeft)-pad)+'px';
+        ink.style.transform='translateX('+left+'px)';
+      }
+      function select(i,focus){
+        i=(i+tabs.length)%tabs.length;
+        if(i===current){if(focus)tabs[i].focus();return}
+        tabs[current].classList.remove('is-active');
+        tabs[current].setAttribute('aria-selected','false');tabs[current].tabIndex=-1;
+        panels[current].classList.remove('is-active');panels[current].hidden=true;
+        current=i;
+        tabs[i].classList.add('is-active');
+        tabs[i].setAttribute('aria-selected','true');tabs[i].tabIndex=0;
+        panels[i].hidden=false;void panels[i].offsetWidth;panels[i].classList.add('is-active');
+        if(focus)tabs[i].focus({preventScroll:true});
+        // mantém a aba ativa visível na rolagem horizontal (celular)
+        list.scrollTo({left:tabs[i].offsetLeft-list.clientWidth/2+tabs[i].offsetWidth/2,behavior:'smooth'});
+        moveInk();
+      }
+      tabs.forEach(function(t,i){
+        t.addEventListener('click',function(){select(i)});
+        t.addEventListener('keydown',function(e){
+          var k=e.key;
+          if(k==='ArrowRight'){e.preventDefault();select(current+1,true)}
+          else if(k==='ArrowLeft'){e.preventDefault();select(current-1,true)}
+          else if(k==='Home'){e.preventDefault();select(0,true)}
+          else if(k==='End'){e.preventDefault();select(tabs.length-1,true)}
+        });
+      });
+      // swipe na foto/lista para trocar de categoria
+      var x0=null,y0=null,box=document.querySelector('.menu-panels');
+      box.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;y0=e.touches[0].clientY},{passive:true});
+      box.addEventListener('touchend',function(e){
+        if(x0===null)return;var dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;
+        if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)select(current+(dx<0?1:-1));
+      });
+      window.addEventListener('resize',moveInk);
+      if(document.fonts&&document.fonts.ready)document.fonts.ready.then(moveInk);
+      moveInk();
+    })();
+
+    /* ===== Menu: destaca a seção visível ===== */
+    (function(){
+      if(!('IntersectionObserver' in window))return;
+      var links=[].slice.call(document.querySelectorAll('.nav-links a[href^="#"]'));
+      var io=new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(!en.isIntersecting)return;
+          links.forEach(function(a){
+            if(a.getAttribute('href')==='#'+en.target.id)a.setAttribute('aria-current','page');
+            else a.removeAttribute('aria-current');
+          });
+        });
+      },{rootMargin:'-45% 0px -50% 0px'});
+      links.forEach(function(a){var el=document.querySelector(a.getAttribute('href'));if(el)io.observe(el)});
+    })();
+  </script>
+</body>
+</html>

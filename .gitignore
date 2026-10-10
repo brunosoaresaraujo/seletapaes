@@ -1,0 +1,11 @@
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+
+# Originais pesados e versões antigas das imagens (o site usa os .webp)
+assets/*.jpeg
+assets/hero-*.jpg
